@@ -2,10 +2,12 @@ pgpool:
   port: 9999
   num_init_children: 2
   max_pool: 4
-  pid_file_name: '/tmp/pgpool.pid'
+  pid_file_name: "'/tmp/pgpool.pid'"
   replication_mode: true
   load_balance_mode: false
   parallel_mode: false
+  # for 8.2 or older
+  #reset_query_list: "'ABORT; RESET ALL; SET SESSION AUTHORIZATION DEFAULT'"
 
 backend:
   bin_path: /usr/local/pgsql/bin
