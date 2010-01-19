@@ -32,14 +32,14 @@ conf['backend']['nodes'].each do |node|
   end
   
   # file db#{port}/postmaster.pid (startdb)
-  file "db#{port}/postmaster.pid" => [ "db#{port}" ] do
+  file "db#{port}/postmaster.pid" => [ "db#{port}/postgresql.conf" ] do
     sh "#{pg_ctl_bin} start -D db#{port}"
   end
 end
 
 ports = conf['backend']['nodes'].collect { |node| node['port'] }
 
-file "pgpool.conf" do
+file "pgpool.conf" => [ 'config.yaml' ] do
   open "pgpool.conf", "w" do |c|
     conf['pgpool'].each do |k, v|
       c.puts "#{k} = #{v}"
@@ -54,9 +54,7 @@ file "pgpool.conf" do
 end
 
 desc "Start all databases."
-task :startdb => ports.map { |port|
-  ["db#{port}/postmaster.pid", "db#{port}/postgresql.conf"]
-}.flatten
+task :startdb => ports.map { |port| [ "db#{port}/postmaster.pid" ] }
 
 desc "Stop all databases."
 task :stopdb do
