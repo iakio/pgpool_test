@@ -1,0 +1,28 @@
+pgpool:
+  port: 9999
+  num_init_children: 2
+  max_pool: 4
+  pid_file_name: '/tmp/pgpool.pid'
+  replication_mode: true
+  load_balance_mode: false
+  parallel_mode: false
+
+backend:
+  bin_path: /usr/local/pgsql/bin
+  default:
+    max_connections: 20
+    shared_buffers: 100
+  default74:
+    log_statement: on
+    log_timestamp: on
+  default80:
+    log_statement: all
+    log_line_prefix: "'%t %u:%d[%p] '"
+  default84:
+    log_statement: all
+    log_line_prefix: "'%t %u:%d[%p] '"
+  nodes:
+    - port: 5401
+    - port: 5402
+    - port: 5403
+
