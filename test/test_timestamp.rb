@@ -15,7 +15,7 @@ class TestTimestamp < Test::Unit::TestCase
 
 
   def teardown
-    connection do |c|
+    each_backend do |c|
       c.query "drop table rel1"
       c.query "drop table rel2"
     end

@@ -13,7 +13,7 @@ class TestReplicate < Test::Unit::TestCase
   end
 
   def teardown
-    connection do |c|
+    each_backend do |c|
       c.query "drop view t_v"
       c.query "drop sequence t_seq"
     end

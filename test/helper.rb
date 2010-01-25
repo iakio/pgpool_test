@@ -23,6 +23,15 @@ module Pgpool
     end
 
 
+    def each_backend
+      config['backend']['nodes'].each do |node|
+        PGconn.open(:port => node['port'], :dbname => @dbname) do |c|
+          yield c
+        end
+      end
+    end
+
+
     def assert_replicated(sql, message="")
       results = config['backend']['nodes'].map do |node|
         PGconn.open(:port => node['port'], :dbname => @dbname) do |c|
