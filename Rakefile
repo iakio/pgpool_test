@@ -55,7 +55,7 @@ file "pgpool.conf" => [ 'config.yaml' ] do
 end
 
 desc "Start all databases."
-task :startdb => ports.map { |port| [ "db#{port}/postmaster.pid" ] }
+task :startdb => ports.map { |port| "db#{port}/postmaster.pid" }
 
 desc "Stop all databases."
 task :stopdb do
