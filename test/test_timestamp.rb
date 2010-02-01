@@ -53,9 +53,9 @@ class TestTimestamp < Test::Unit::TestCase
       c.query "prepare q2(int) as update rel1 set t = current_timestamp where i = $1"
       c.query "execute q2(1)"
       assert_replicated "select * from rel1"
-      #c.query "prepare q3(int) as insert into rel1 values(3, now())"
-      #c.query "execute q3"
-      #assert_replicated "select * from rel1"
+      c.query "prepare q3 as insert into rel1 values(3, now())"
+      c.query "execute q3"
+      assert_replicated "select * from rel1"
     end
   end
 
@@ -87,8 +87,6 @@ class TestTimestamp < Test::Unit::TestCase
         c.exec_prepared "", [2]
         assert_replicated "select * from rel1"
       end
-      c.query "insert into rel1 values($1, now())", [3]
-      c.query "insert into rel1 values($1, current_timestamp)", [4]
     end
   end
 

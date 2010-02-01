@@ -34,6 +34,7 @@ conf['backend']['nodes'].each do |node|
   # file db#{port}/postmaster.pid (startdb)
   file "db#{port}/postmaster.pid" => [ "db#{port}/postgresql.conf" ] do
     sh "#{pg_ctl_bin} start -D db#{port}"
+    #sh "#{pg_ctl_bin} start -D db#{port} -l log#{port}.log"
   end
 end
 
