@@ -12,7 +12,7 @@ module Pgpool
 
 
     def port
-      @port ||= config['pgpool']['port']
+      @port ||= config['pgpool']['config']['port']
     end
 
 

@@ -1,10 +1,12 @@
 require 'yaml'
-require 'rake/testtask'
 
 conf = YAML.load_file('config.yaml')
-pgsql_bin = conf['backend'].fetch('bin_path', '/usr/local/pgsql/bin')
-initdb_bin = File.join(pgsql_bin, 'initdb')
-pg_ctl_bin = File.join(pgsql_bin, 'pg_ctl')
+pgsql_bin_path = conf['backend'].fetch('bin_path', '/usr/local/pgsql/bin')
+pgpool_bin_path = conf['pgpool'].fetch('bin_path', '/usr/local/pgsql/bin')
+initdb_bin = File.join(pgsql_bin_path, 'initdb')
+createdb_bin = File.join(pgsql_bin_path, 'createdb')
+pg_ctl_bin = File.join(pgsql_bin_path, 'pg_ctl')
+pgpool_bin = File.join(pgpool_bin_path, 'pgpool')
 
 conf['backend']['nodes'].each do |node|
   port = node['port']
@@ -40,9 +42,9 @@ end
 
 ports = conf['backend']['nodes'].collect { |node| node['port'] }
 
-file "pgpool.conf" => [ 'config.yaml' ] do
+file "pgpool.conf" do
   open "pgpool.conf", "w" do |c|
-    conf['pgpool'].each do |k, v|
+    conf['pgpool']['config'].each do |k, v|
       c.puts "#{k} = #{v}"
     end
     c.puts
@@ -64,4 +66,9 @@ task :stopdb do
   end
 end
 
-Rake::TestTask.new
+task :test => [ "pgpool.conf" ] do
+  sh "#{pgpool_bin} -f pgpool.conf"
+  sh "#{createdb_bin} -p #{conf['pgpool']['config']['port']} pool_test" rescue nil
+  ruby "runner.rb"
+  sh "#{pgpool_bin} -f pgpool.conf stop"
+end
