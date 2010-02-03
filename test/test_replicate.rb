@@ -39,18 +39,22 @@ class TestReplicate < Test::Unit::TestCase
     end
   end
 
+  # All r[0..n]['nextval']  == "2".
   def assert_replicate(sql)
     res = _test_replicate(sql)
     assert res.all? {|i| i['nextval'] == "2"}
   end
 
+  # r[master]['nextval']  == "2" && r[slaves]['nextval'] == "1".
   def assert_not_replicate(sql)
+    res = _test_replicate(sql)
     if pool_status["load_balance_mode"] == '1'
       # I don't know who is master.
-      head, *tail = _test_replicate(sql).sort_by {|i| i['nextval']}.reverse
+      head, *tail = res.sort_by {|i| i['nextval']}.reverse
     else
-      head, *tail = _test_replicate(sql)
+      head, *tail = res
     end
+
     assert_equal "2", head['nextval']
     tail.each do |t|
       assert_equal "1", t['nextval']
@@ -74,6 +78,11 @@ class TestReplicate < Test::Unit::TestCase
       assert_not_replicate [
         "prepare p1 as select nextval from t_v",
         "execute p1",
+      ]
+
+      assert_replicate [
+        "prepare p2 as select nextval('t_seq')",
+        "execute p2",
       ]
     end
   end
