@@ -19,6 +19,10 @@ class TestReplicate < Test::Unit::TestCase
     end
   end
 
+
+  # 1. setval('t_seq', 1)
+  # 2. Do given queies.
+  # 3. Return "nextval('t_seq')" for each backends as Array.
   def _test_replicate(sql)
     sql = [ sql ] unless sql.is_a? Enumerable
     connection do |c|
@@ -36,15 +40,17 @@ class TestReplicate < Test::Unit::TestCase
   end
 
   def assert_replicate(sql)
-    head, *tail = _test_replicate(sql)
-    assert_equal "2", head['nextval']
-    tail.each do |t|
-      assert_equal "2", t['nextval']
-    end
+    res = _test_replicate(sql)
+    assert res.all? {|i| i['nextval'] == "2"}
   end
 
   def assert_not_replicate(sql)
-    head, *tail = _test_replicate(sql)
+    if pool_status["load_balance_mode"] == '1'
+      # I don't know who is master.
+      head, *tail = _test_replicate(sql).sort_by {|i| i['nextval']}.reverse
+    else
+      head, *tail = _test_replicate(sql)
+    end
     assert_equal "2", head['nextval']
     tail.each do |t|
       assert_equal "1", t['nextval']
