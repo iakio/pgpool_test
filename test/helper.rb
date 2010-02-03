@@ -32,6 +32,14 @@ module Pgpool
     end
 
 
+    def pool_status
+      @pool_status ||= connection do |c|
+        res = c.query "show pool_status"
+        break Hash[ res.map {|r| [r["item"], r["value"]]} ]
+      end
+    end
+
+
     def assert_replicated(sql, message="")
       results = config['backend']['nodes'].map do |node|
         PGconn.open(:port => node['port'], :dbname => @dbname) do |c|
