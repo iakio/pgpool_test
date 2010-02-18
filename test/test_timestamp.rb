@@ -16,8 +16,8 @@ class TestTimestamp < Test::Unit::TestCase
 
   def teardown
     each_backend do |c|
-      c.query "drop table rel1"
-      c.query "drop table rel2"
+      c.query "drop table rel1" rescue nil
+      c.query "drop table rel2" rescue nil
     end
   end
 

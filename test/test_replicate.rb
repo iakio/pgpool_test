@@ -14,8 +14,8 @@ class TestReplicate < Test::Unit::TestCase
 
   def teardown
     each_backend do |c|
-      c.query "drop view t_v"
-      c.query "drop sequence t_seq"
+      c.query "drop view t_v" rescue nil
+      c.query "drop sequence t_seq" rescue nil
     end
   end
 

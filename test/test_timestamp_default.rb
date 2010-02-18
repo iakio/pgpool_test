@@ -13,7 +13,7 @@ class TestTimestampDefault < Test::Unit::TestCase
 
   def teardown
     each_backend do |c|
-      c.query "drop table tsdef1"
+      c.query "drop table tsdef1" rescue nil
     end
   end
 
