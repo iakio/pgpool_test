@@ -42,9 +42,10 @@ end
 
 ports = conf['backend']['nodes'].collect { |node| node['port'] }
 
-file "pgpool.conf" do
+task :test do
+  cfg = conf['pgpool']['config']
   open "pgpool.conf", "w" do |c|
-    conf['pgpool']['config'].each do |k, v|
+    cfg.each do |k, v|
       c.puts "#{k} = #{v}"
     end
     c.puts
@@ -54,6 +55,11 @@ file "pgpool.conf" do
       c.puts "backend_weight#{i} = 1"
     end
   end
+
+  sh "#{pgpool_bin} -f pgpool.conf"
+  sh "#{createdb_bin} -p #{conf['pgpool']['config']['port']} pool_test" rescue nil
+  ruby "runner.rb"
+  sh "#{pgpool_bin} -f pgpool.conf stop"
 end
 
 desc "Start all databases."
@@ -66,9 +72,3 @@ task :stopdb do
   end
 end
 
-task :test => [ "pgpool.conf" ] do
-  sh "#{pgpool_bin} -f pgpool.conf"
-  sh "#{createdb_bin} -p #{conf['pgpool']['config']['port']} pool_test" rescue nil
-  ruby "runner.rb"
-  sh "#{pgpool_bin} -f pgpool.conf stop"
-end
